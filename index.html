@@ -1,9 +1,740 @@
-# 1. Create a new repo on github.com, then:
-git init
-git add index.html
-git commit -m "init: tape deck utc sync player"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
-git push -u origin main
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1e1610">
+  <title>Tape Deck · UTC Sync</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-# 2. In repo Settings → Pages → Source: "Deploy from branch" → main → / (root)
+    :root {
+      --bg:        #1e1610;
+      --bg-deep:   #0e0b07;
+      --bg-mid:    #140f08;
+      --border:    #3a2e1e;
+      --border-dim:#2a1e0e;
+      --gold:      #c8a84b;
+      --gold-lt:   #e8c86a;
+      --gold-dk:   #8a6e28;
+      --text:      #d4c4a0;
+      --text-dim:  #8a7355;
+      --text-muted:#4a3820;
+      --text-dark: #6a5030;
+      --green:     #6abf69;
+      --label-bg:  #c8a84b;
+      --label-fg:  #1a1000;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: #120d08;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 12px 48px;
+      font-family: 'IBM Plex Mono', monospace;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Shell ── */
+    .shell {
+      background: var(--bg);
+      border-radius: 20px;
+      padding: 28px 24px 24px;
+      width: 100%;
+      max-width: 420px;
+      color: var(--text);
+      border: 1.5px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .shell::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
+      pointer-events: none;
+      border-radius: 20px;
+    }
+
+    /* ── Header ── */
+    .deck-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 12px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    /* ── URL row ── */
+    .url-row { display: flex; gap: 8px; margin-bottom: 18px; }
+    .url-input {
+      flex: 1;
+      background: var(--bg-mid);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      outline: none;
+      min-width: 0;
+    }
+    .url-input::placeholder { color: var(--text-muted); }
+    .url-input:focus { border-color: var(--gold); }
+    .load-btn {
+      background: var(--gold);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--label-fg);
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .load-btn:active { transform: scale(0.97); background: #b89a3a; }
+
+    /* ── Tape window ── */
+    .tape-window {
+      background: var(--bg-deep);
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      padding: 18px 16px 14px;
+      margin-bottom: 18px;
+      position: relative;
+    }
+    .tape-window::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.7);
+      pointer-events: none;
+    }
+
+    .reels-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .reel-wrap { position: relative; width: 88px; height: 88px; display: flex; align-items: center; justify-content: center; }
+    .reel {
+      width: 82px; height: 82px; border-radius: 50%;
+      border: 2px solid #4a3820;
+      background: radial-gradient(circle at 50% 50%, #2a1f0e 0%, #1a1208 60%, #0e0b07 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .reel.spin-fast  { animation: reelSpin 1.6s linear infinite; }
+    .reel.spin-slow  { animation: reelSpin 3.2s linear infinite; }
+    @keyframes reelSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .reel-hub {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #3a2c18; border: 1.5px solid #6a5030;
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    }
+
+    .tape-path {
+      height: 10px;
+      background: linear-gradient(to bottom, #1a0f05, #3a2510, #1a0f05);
+      border-radius: 2px;
+      margin: 0 8px 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .tape-sheen {
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, transparent 0%, rgba(180,140,60,0.15) 30%, rgba(180,140,60,0.35) 50%, rgba(180,140,60,0.15) 70%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .tape-sheen.active { opacity: 1; animation: tapeSheen 1.8s linear infinite; }
+    @keyframes tapeSheen { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+    .track-label {
+      background: var(--label-bg);
+      border-radius: 6px;
+      padding: 8px 10px;
+      text-align: center;
+      flex: 1;
+    }
+    .label-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--label-fg);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .label-sub { font-size: 9px; color: #5a4010; letter-spacing: 0.12em; margin-top: 2px; }
+
+    /* VU meters */
+    .vu-row { display: flex; gap: 4px; align-items: flex-end; height: 24px; }
+    .vu-bar { flex: 1; background: rgba(0,0,0,0.5); border-radius: 1px; position: relative; overflow: hidden; height: 24px; }
+    .vu-fill {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, var(--gold), var(--gold-lt), #f0d070);
+      height: 0%;
+      transition: height 0.07s ease-out;
+      border-radius: 1px;
+    }
+
+    /* ── Progress ── */
+    .progress-area { margin-bottom: 16px; }
+    .scrub-wrap {
+      height: 6px; background: var(--bg-deep); border-radius: 3px;
+      cursor: pointer; margin-bottom: 6px; position: relative;
+      border: 1px solid var(--border-dim);
+    }
+    .scrub-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--gold), var(--gold-lt));
+      border-radius: 3px; width: 0%; pointer-events: none;
+      transition: width 0.25s linear;
+    }
+    .time-row { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-dark); letter-spacing: 0.08em; }
+
+    /* ── Controls ── */
+    .controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .ctrl-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer; color: var(--text-dim);
+      padding: 9px 14px;
+      font-size: 10px; letter-spacing: 0.12em;
+      font-family: 'IBM Plex Mono', monospace;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .ctrl-btn:hover { border-color: var(--gold); color: var(--text); }
+    .ctrl-btn:active { transform: scale(0.95); }
+    .play-btn {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: radial-gradient(circle at 38% 32%, var(--gold-lt), var(--gold) 50%, var(--gold-dk));
+      border: 2px solid #6a5020;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--label-fg);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2);
+      transition: transform 0.1s;
+    }
+    .play-btn:hover { transform: scale(1.05); }
+    .play-btn:active { transform: scale(0.95); }
+
+    /* ── Volume ── */
+    .vol-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .vol-label { font-size: 9px; color: var(--text-dark); letter-spacing: 0.16em; width: 28px; flex-shrink: 0; }
+    input[type=range].vol-slider {
+      flex: 1; -webkit-appearance: none; height: 4px; border-radius: 2px;
+      background: linear-gradient(to right, var(--gold) 80%, #2a1e0e 80%);
+      outline: none; cursor: pointer;
+    }
+    input[type=range].vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+      background: radial-gradient(circle at 38% 32%, var(--gold-lt), #b89830);
+      cursor: pointer; border: 1px solid #6a5020;
+    }
+
+    /* ── Sync panel ── */
+    .sync-panel {
+      background: var(--bg-mid);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border);
+    }
+    .sync-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .sync-heading { font-size: 9px; letter-spacing: 0.2em; color: var(--text-dark); text-transform: uppercase; }
+    .sync-pill {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--bg-deep); border: 1px solid var(--border-dim);
+      border-radius: 20px; padding: 3px 10px;
+      font-size: 9px; letter-spacing: 0.1em; color: var(--text-dark);
+    }
+    .pip { width: 6px; height: 6px; border-radius: 50%; background: #3a2e1e; flex-shrink: 0; transition: background 0.3s, box-shadow 0.3s; }
+    .pip.live  { background: var(--gold); box-shadow: 0 0 6px rgba(200,168,75,0.7); }
+    .pip.synced { background: var(--green); box-shadow: 0 0 6px rgba(106,191,105,0.6); }
+
+    .utc-clock { font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 300; color: var(--text); letter-spacing: 0.05em; margin-bottom: 3px; }
+    .utc-sub { font-size: 8px; color: var(--text-muted); letter-spacing: 0.16em; margin-bottom: 12px; }
+
+    .metrics { display: flex; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+    .metric { font-size: 10px; color: var(--text-muted); letter-spacing: 0.06em; }
+    .metric span { color: var(--text-dim); }
+
+    /* ── Share row ── */
+    .share-section { border-top: 1px solid var(--border-dim); padding-top: 12px; margin-top: 2px; }
+    .share-label { font-size: 9px; color: var(--text-dark); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 8px; }
+    .share-link-box {
+      background: var(--bg-deep);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 11px;
+      color: var(--text-dim);
+      word-break: break-all;
+      margin-bottom: 8px;
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+    }
+    .share-link-box.empty { color: var(--text-muted); font-style: italic; }
+    .share-btns { display: flex; gap: 8px; }
+    .share-btn {
+      flex: 1;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px;
+      color: var(--text-dim);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      font-family: 'IBM Plex Mono', monospace;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .share-btn:hover { border-color: var(--gold); color: var(--text); }
+    .share-btn:active { transform: scale(0.97); }
+    .share-btn.primary { background: var(--gold); border-color: var(--gold); color: var(--label-fg); }
+    .share-btn.primary:hover { background: var(--gold-lt); border-color: var(--gold-lt); }
+
+    /* ── Status ── */
+    .status-line {
+      font-size: 10px;
+      color: var(--text-dark);
+      letter-spacing: 0.06em;
+      min-height: 14px;
+      border-top: 1px solid var(--border-dim);
+      padding-top: 10px;
+      margin-top: 12px;
+      transition: color 0.3s;
+    }
+    .status-line.ok { color: var(--green); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--gold);
+      color: var(--label-fg);
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.08em;
+      padding: 10px 20px;
+      border-radius: 24px;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      z-index: 100;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="deck-title">Tape Deck &middot; UTC Sync</div>
+
+  <!-- URL input -->
+  <div class="url-row">
+    <input class="url-input" id="audioUrl" placeholder="paste audio url…" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="load-btn" onclick="loadTrack()">LOAD</button>
+  </div>
+
+  <!-- Tape window -->
+  <div class="tape-window">
+    <div class="reels-row">
+      <div class="reel-wrap">
+        <div class="reel" id="reelL">
+          <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 82 82">
+            <g stroke="#4a3820" stroke-width="1.5" fill="none">
+              <line x1="41" y1="10" x2="41" y2="72"/>
+              <line x1="10" y1="41" x2="72" y2="41"/>
+              <line x1="18" y1="18" x2="64" y2="64"/>
+              <line x1="64" y1="18" x2="18" y2="64"/>
+            </g>
+          </svg>
+          <div class="reel-hub"></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;flex:1;padding:0 10px;">
+        <div class="track-label">
+          <div class="label-title" id="trackTitle">No track loaded</div>
+          <div class="label-sub" id="trackSub">A &middot; SIDE</div>
+        </div>
+      </div>
+
+      <div class="reel-wrap">
+        <div class="reel" id="reelR">
+          <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 82 82">
+            <g stroke="#4a3820" stroke-width="1.5" fill="none">
+              <line x1="41" y1="10" x2="41" y2="72"/>
+              <line x1="10" y1="41" x2="72" y2="41"/>
+              <line x1="18" y1="18" x2="64" y2="64"/>
+              <line x1="64" y1="18" x2="18" y2="64"/>
+            </g>
+          </svg>
+          <div class="reel-hub"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tape-path"><div class="tape-sheen" id="tapeSheen"></div></div>
+    <div class="vu-row" id="vuRow"></div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-area">
+    <div class="scrub-wrap" id="scrubWrap">
+      <div class="scrub-fill" id="scrubFill"></div>
+    </div>
+    <div class="time-row">
+      <span id="currentTime">0:00</span>
+      <span id="duration">—</span>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="ctrl-btn" onclick="skip(-15)">&#9664;&#9664; 15s</button>
+    <button class="play-btn" id="playBtn" onclick="togglePlay()">
+      <svg id="playIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg id="pauseIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+    </button>
+    <button class="ctrl-btn" onclick="skip(15)">15s &#9654;&#9654;</button>
+  </div>
+
+  <!-- Volume -->
+  <div class="vol-row">
+    <span class="vol-label">VOL</span>
+    <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="80" step="1" oninput="setVolume(this.value)">
+  </div>
+
+  <!-- Sync panel -->
+  <div class="sync-panel">
+    <div class="sync-top">
+      <span class="sync-heading">UTC Clock Sync</span>
+      <div class="sync-pill">
+        <div class="pip" id="pip"></div>
+        <span id="pipLabel">idle</span>
+      </div>
+    </div>
+
+    <div class="utc-clock" id="utcClock">--:--:--</div>
+    <div class="utc-sub">COORDINATED UNIVERSAL TIME</div>
+
+    <div class="metrics">
+      <div class="metric">EPOCH <span id="epochVal">—</span></div>
+      <div class="metric">DRIFT <span id="driftVal">—</span></div>
+      <div class="metric">TARGET <span id="targetVal">—</span></div>
+    </div>
+
+    <!-- Share section -->
+    <div class="share-section">
+      <div class="share-label">Share sync link</div>
+      <div class="share-link-box empty" id="shareLinkBox">press play to generate a sync link</div>
+      <div class="share-btns">
+        <button class="share-btn" onclick="copyLink()">copy link</button>
+        <button class="share-btn primary" onclick="shareLink()">share ↗</button>
+      </div>
+    </div>
+
+    <div class="status-line" id="statusLine">load a track &middot; press play &middot; share the link</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── State ──────────────────────────────────────────────────────────────────
+  let audio = null;
+  let isPlaying = false;
+  let syncEpoch = null;
+  let syncTimer = null;
+  let vuTimer = null;
+  let driftHistory = [];
+  let currentShareLink = '';
+
+  // ── VU bars ────────────────────────────────────────────────────────────────
+  (function buildVU() {
+    const row = document.getElementById('vuRow');
+    for (let i = 0; i < 30; i++) {
+      const b = document.createElement('div'); b.className = 'vu-bar';
+      const f = document.createElement('div'); f.className = 'vu-fill'; f.id = 'vu' + i;
+      b.appendChild(f); row.appendChild(b);
+    }
+  })();
+
+  function animateVU() {
+    for (let i = 0; i < 30; i++) {
+      const h = isPlaying
+        ? Math.max(4, Math.min(100, 45 + Math.sin(Date.now() / 180 + i * 0.45) * 28 + Math.random() * 28))
+        : 0;
+      const f = document.getElementById('vu' + i);
+      if (f) f.style.height = h + '%';
+    }
+  }
+
+  // ── Clock ──────────────────────────────────────────────────────────────────
+  function updateClock() {
+    const n = new Date();
+    const h = String(n.getUTCHours()).padStart(2, '0');
+    const m = String(n.getUTCMinutes()).padStart(2, '0');
+    const s = String(n.getUTCSeconds()).padStart(2, '0');
+    document.getElementById('utcClock').textContent = h + ':' + m + ':' + s;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  function getUTC() { return Date.now() / 1000; }
+
+  // ── URL params ─────────────────────────────────────────────────────────────
+  (function initFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const epoch = params.get('epoch');
+    const url   = params.get('url');
+    if (url) {
+      document.getElementById('audioUrl').value = decodeURIComponent(url);
+    }
+    if (epoch) {
+      syncEpoch = parseFloat(epoch);
+    }
+    if (url && epoch) {
+      // Auto-load when both params present
+      setTimeout(() => {
+        loadTrack(true);
+        setStatus('sync link detected · tap play to join session', false);
+      }, 400);
+    }
+  })();
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function fmt(s) {
+    if (!isFinite(s) || isNaN(s)) return '0:00';
+    const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  function setStatus(msg, isOk) {
+    const el = document.getElementById('statusLine');
+    el.textContent = msg;
+    el.className = 'status-line' + (isOk ? ' ok' : '');
+  }
+
+  function setPip(state) {
+    const pip = document.getElementById('pip');
+    const lbl = document.getElementById('pipLabel');
+    pip.className = 'pip' + (state === 'synced' ? ' synced' : state === 'live' ? ' live' : '');
+    lbl.textContent = state === 'synced' ? 'synced' : state === 'live' ? 'playing' : 'idle';
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function buildShareLink() {
+    const url = document.getElementById('audioUrl').value.trim();
+    if (!url || syncEpoch === null) return '';
+    const base = window.location.origin + window.location.pathname;
+    return base + '?epoch=' + syncEpoch.toFixed(3) + '&url=' + encodeURIComponent(url);
+  }
+
+  function updateShareBox() {
+    const link = buildShareLink();
+    currentShareLink = link;
+    const box = document.getElementById('shareLinkBox');
+    if (link) {
+      box.textContent = link;
+      box.classList.remove('empty');
+    } else {
+      box.textContent = 'press play to generate a sync link';
+      box.classList.add('empty');
+    }
+  }
+
+  function copyLink() {
+    if (!currentShareLink) { showToast('play first to generate a link'); return; }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(currentShareLink).then(() => showToast('link copied!'));
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = currentShareLink;
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('link copied!');
+    }
+  }
+
+  function shareLink() {
+    if (!currentShareLink) { showToast('play first to generate a link'); return; }
+    if (navigator.share) {
+      navigator.share({ title: 'Join my tape deck session', url: currentShareLink })
+        .catch(() => copyLink());
+    } else {
+      copyLink();
+    }
+  }
+
+  // ── Load ───────────────────────────────────────────────────────────────────
+  function loadTrack(silent) {
+    const url = document.getElementById('audioUrl').value.trim();
+    if (!url) { setStatus('paste an audio url first'); return; }
+    if (audio) { audio.pause(); audio.src = ''; }
+    audio = new Audio();
+    audio.crossOrigin = 'anonymous';
+    audio.volume = 0.8;
+    audio.preload = 'metadata';
+
+    audio.addEventListener('loadedmetadata', () => {
+      const raw = url.split('/').pop().replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ') || 'Track';
+      const name = raw.charAt(0).toUpperCase() + raw.slice(1);
+      document.getElementById('trackTitle').textContent = name.length > 28 ? name.slice(0, 26) + '…' : name;
+      document.getElementById('trackSub').textContent =
+        (audio.duration && isFinite(audio.duration)) ? fmt(audio.duration) + ' · A SIDE' : 'LIVE · A SIDE';
+      document.getElementById('duration').textContent =
+        (audio.duration && isFinite(audio.duration)) ? fmt(audio.duration) : '∞';
+      if (!silent) setStatus('tape loaded — press play on all devices');
+    });
+
+    audio.addEventListener('error', () => setStatus('could not load — check url / cors headers'));
+    audio.addEventListener('timeupdate', updateScrub);
+    audio.src = url;
+  }
+
+  // ── Scrub ──────────────────────────────────────────────────────────────────
+  function updateScrub() {
+    if (!audio || !audio.duration || !isFinite(audio.duration)) return;
+    const pct = (audio.currentTime / audio.duration) * 100;
+    document.getElementById('scrubFill').style.width = pct + '%';
+    document.getElementById('currentTime').textContent = fmt(audio.currentTime);
+  }
+
+  document.getElementById('scrubWrap').addEventListener('click', function(e) {
+    if (!audio || !audio.duration || !isFinite(audio.duration)) return;
+    const r = this.getBoundingClientRect();
+    const pct = (e.clientX - r.left) / r.width;
+    audio.currentTime = pct * audio.duration;
+    if (syncEpoch !== null) { syncEpoch = getUTC() - audio.currentTime; updateShareBox(); }
+  });
+
+  // ── Reels ──────────────────────────────────────────────────────────────────
+  function reelsPlay() {
+    document.getElementById('reelL').className = 'reel spin-fast';
+    document.getElementById('reelR').className = 'reel spin-slow';
+    document.getElementById('tapeSheen').className = 'tape-sheen active';
+  }
+  function reelsStop() {
+    document.getElementById('reelL').className = 'reel';
+    document.getElementById('reelR').className = 'reel';
+    document.getElementById('tapeSheen').className = 'tape-sheen';
+  }
+
+  // ── Seek to epoch ──────────────────────────────────────────────────────────
+  function seekToEpoch() {
+    if (!audio || syncEpoch === null) return;
+    const target = getUTC() - syncEpoch;
+    if (isNaN(target)) return;
+    if (audio.duration && isFinite(audio.duration) && target >= audio.duration) {
+      audio.currentTime = 0; syncEpoch = getUTC(); return;
+    }
+    if (Math.abs(audio.currentTime - target) > 0.5) {
+      audio.currentTime = Math.max(0, target);
+    }
+  }
+
+  // ── Play / pause ───────────────────────────────────────────────────────────
+  function togglePlay() {
+    if (!audio) { setStatus('load a track first'); return; }
+
+    if (isPlaying) {
+      audio.pause();
+      isPlaying = false;
+      reelsStop();
+      document.getElementById('playIcon').style.display = '';
+      document.getElementById('pauseIcon').style.display = 'none';
+      clearInterval(syncTimer);
+      clearInterval(vuTimer);
+      animateVU();
+      setPip('idle');
+      setStatus('paused · epoch preserved — others can still join');
+    } else {
+      if (syncEpoch === null) {
+        syncEpoch = getUTC() - (audio.currentTime || 0);
+      } else {
+        seekToEpoch();
+      }
+      audio.play().then(() => {
+        isPlaying = true;
+        reelsPlay();
+        document.getElementById('playIcon').style.display = 'none';
+        document.getElementById('pauseIcon').style.display = '';
+        startSync();
+        vuTimer = setInterval(animateVU, 80);
+        setPip('live');
+        updateShareBox();
+        document.getElementById('epochVal').textContent = syncEpoch.toFixed(0);
+        setStatus('playing · epoch ' + syncEpoch.toFixed(0), true);
+      }).catch(() => {
+        setStatus('tap play again · mobile requires a gesture');
+      });
+    }
+  }
+
+  // ── Sync loop ──────────────────────────────────────────────────────────────
+  function startSync() {
+    clearInterval(syncTimer);
+    syncTimer = setInterval(() => {
+      if (!audio || !isPlaying || syncEpoch === null) return;
+      const target = getUTC() - syncEpoch;
+      const drift = audio.currentTime - target;
+      driftHistory.push(drift);
+      if (driftHistory.length > 8) driftHistory.shift();
+      const avg = (driftHistory.reduce((a, b) => a + b, 0) / driftHistory.length).toFixed(2);
+      document.getElementById('driftVal').textContent = avg + 's';
+      document.getElementById('targetVal').textContent = fmt(Math.max(0, target));
+      setPip(Math.abs(drift) < 0.4 ? 'synced' : 'live');
+      if (Math.abs(drift) > 1.5) {
+        seekToEpoch();
+        setStatus('resynced · drift was ' + drift.toFixed(1) + 's', true);
+      }
+    }, 2000);
+  }
+
+  // ── Skip ───────────────────────────────────────────────────────────────────
+  function skip(s) {
+    if (!audio) return;
+    audio.currentTime = Math.max(0, (audio.currentTime || 0) + s);
+    if (syncEpoch !== null) { syncEpoch = getUTC() - audio.currentTime; updateShareBox(); }
+    document.getElementById('epochVal').textContent = syncEpoch ? syncEpoch.toFixed(0) : '—';
+  }
+
+  // ── Volume ─────────────────────────────────────────────────────────────────
+  function setVolume(v) {
+    if (audio) audio.volume = v / 100;
+    const pct = v + '%';
+    document.getElementById('volSlider').style.background =
+      'linear-gradient(to right, #c8a84b ' + pct + ', #2a1e0e ' + pct + ')';
+  }
+</script>
+</body>
+</html>
