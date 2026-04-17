@@ -312,6 +312,40 @@
     }
     .status-line.ok { color: var(--green); }
 
+    /* ── Arm panel ── */
+    .arm-panel {
+      margin-top: 18px;
+      background: var(--bg-mid);
+      border-radius: 14px;
+      padding: 22px 16px 20px;
+      border: 1px solid var(--border);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.3s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .arm-panel.armed { border-color: var(--gold); }
+    .arm-panel.firing { border-color: #e87040; }
+    .breath-row {
+      display: flex; gap: 5px; justify-content: center; align-items: center;
+      height: 36px; margin-bottom: 16px;
+    }
+    .breath-bar {
+      width: 7px; border-radius: 3px;
+      background: var(--gold);
+      opacity: 0.18;
+      height: 6px;
+      transition: height 0.18s ease, opacity 0.18s ease, background 0.3s;
+    }
+    .arm-label {
+      font-size: 10px; letter-spacing: 0.2em;
+      color: var(--text-dark);
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .arm-panel.armed .arm-label { color: var(--gold); }
+    .arm-panel.firing .arm-label { color: #e87040; }
+
     /* ── Toast ── */
     .toast {
       position: fixed;
@@ -413,37 +447,18 @@
     <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="80" step="1" oninput="setVolume(this.value)">
   </div>
 
-  <!-- Sync panel -->
-  <div class="sync-panel">
-    <div class="sync-top">
-      <span class="sync-heading">UTC Clock Sync</span>
-      <div class="sync-pill">
-        <div class="pip" id="pip"></div>
-        <span id="pipLabel">idle</span>
-      </div>
-    </div>
-
-    <div class="utc-clock" id="utcClock">--:--:--</div>
-    <div class="utc-sub">COORDINATED UNIVERSAL TIME</div>
-
-    <div class="metrics">
-      <div class="metric">EPOCH <span id="epochVal">—</span></div>
-      <div class="metric">DRIFT <span id="driftVal">—</span></div>
-      <div class="metric">TARGET <span id="targetVal">—</span></div>
-    </div>
-
-    <!-- Share section -->
-    <div class="share-section">
-      <div class="share-label">Share sync link</div>
-      <div class="share-link-box empty" id="shareLinkBox">press play to generate a sync link</div>
-      <div class="share-btns">
-        <button class="share-btn" onclick="copyLink()">copy link</button>
-        <button class="share-btn primary" onclick="shareLink()">share ↗</button>
-      </div>
-    </div>
-
-    <div class="status-line" id="statusLine">load a track &middot; press play &middot; share the link</div>
+  <!-- Arm panel -->
+  <div class="arm-panel" id="armPanel">
+    <div class="breath-row" id="breathRow"></div>
+    <div class="arm-label" id="armLabel">tap to arm</div>
   </div>
+
+  <!-- UTC Clock -->
+  <div style="text-align:center;margin-top:18px;">
+    <div id="utcClock" style="font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:300;color:#d4c4a0;letter-spacing:0.06em;">--:--:--</div>
+    <div style="font-size:8px;letter-spacing:0.2em;color:#4a3820;margin-top:3px;">COORDINATED UNIVERSAL TIME</div>
+  </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -478,7 +493,8 @@
     }
   }
 
-  // ── Clock ──────────────────────────────────────────────────────────────────
+  function getUTC() { return Date.now() / 1000; }
+
   function updateClock() {
     const n = new Date();
     const h = String(n.getUTCHours()).padStart(2, '0');
@@ -489,26 +505,24 @@
   setInterval(updateClock, 1000);
   updateClock();
 
-  function getUTC() { return Date.now() / 1000; }
+  // ── Auto-load hardcoded track ──────────────────────────────────────────────
+  const TRACK_URL = 'https://rossalli-cloud.github.io/paralleltangents/paralleltangents%20mixdown1.mp3';
 
-  // ── URL params ─────────────────────────────────────────────────────────────
   (function initFromURL() {
     const params = new URLSearchParams(window.location.search);
     const epoch = params.get('epoch');
-    const url   = params.get('url');
-    if (url) {
-      document.getElementById('audioUrl').value = decodeURIComponent(url);
-    }
+    const url   = params.get('url') ? decodeURIComponent(params.get('url')) : TRACK_URL;
+
+    document.getElementById('audioUrl').value = url;
+
     if (epoch) {
       syncEpoch = parseFloat(epoch);
     }
-    if (url && epoch) {
-      // Auto-load when both params present
-      setTimeout(() => {
-        loadTrack(true);
-        setStatus('sync link detected · tap play to join session', false);
-      }, 400);
-    }
+
+    setTimeout(() => {
+      loadTrack(true);
+      setStatus(epoch ? 'sync link detected · tap arm or play' : 'ready · tap the countdown to arm', false);
+    }, 400);
   })();
 
   // ── Helpers ────────────────────────────────────────────────────────────────
@@ -519,17 +533,13 @@
   }
 
   function setStatus(msg, isOk) {
-    const el = document.getElementById('statusLine');
-    el.textContent = msg;
-    el.className = 'status-line' + (isOk ? ' ok' : '');
+    console.log(msg);
   }
 
-  function setPip(state) {
-    const pip = document.getElementById('pip');
-    const lbl = document.getElementById('pipLabel');
-    pip.className = 'pip' + (state === 'synced' ? ' synced' : state === 'live' ? ' live' : '');
-    lbl.textContent = state === 'synced' ? 'synced' : state === 'live' ? 'playing' : 'idle';
-  }
+  function setPip() {}
+  function updateShareBox() {}
+  function copyLink() {}
+  function shareLink() {}
 
   function showToast(msg) {
     const t = document.getElementById('toast');
@@ -538,57 +548,12 @@
     setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  function buildShareLink() {
-    const url = document.getElementById('audioUrl').value.trim();
-    if (!url || syncEpoch === null) return '';
-    const base = window.location.origin + window.location.pathname;
-    return base + '?epoch=' + syncEpoch.toFixed(3) + '&url=' + encodeURIComponent(url);
-  }
-
-  function updateShareBox() {
-    const link = buildShareLink();
-    currentShareLink = link;
-    const box = document.getElementById('shareLinkBox');
-    if (link) {
-      box.textContent = link;
-      box.classList.remove('empty');
-    } else {
-      box.textContent = 'press play to generate a sync link';
-      box.classList.add('empty');
-    }
-  }
-
-  function copyLink() {
-    if (!currentShareLink) { showToast('play first to generate a link'); return; }
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(currentShareLink).then(() => showToast('link copied!'));
-    } else {
-      const ta = document.createElement('textarea');
-      ta.value = currentShareLink;
-      document.body.appendChild(ta); ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showToast('link copied!');
-    }
-  }
-
-  function shareLink() {
-    if (!currentShareLink) { showToast('play first to generate a link'); return; }
-    if (navigator.share) {
-      navigator.share({ title: 'Join my tape deck session', url: currentShareLink })
-        .catch(() => copyLink());
-    } else {
-      copyLink();
-    }
-  }
-
   // ── Load ───────────────────────────────────────────────────────────────────
   function loadTrack(silent) {
     const url = document.getElementById('audioUrl').value.trim();
     if (!url) { setStatus('paste an audio url first'); return; }
     if (audio) { audio.pause(); audio.src = ''; }
     audio = new Audio();
-    audio.crossOrigin = 'anonymous';
     audio.volume = 0.8;
     audio.preload = 'metadata';
 
@@ -678,11 +643,9 @@
         startSync();
         vuTimer = setInterval(animateVU, 80);
         setPip('live');
-        updateShareBox();
-        document.getElementById('epochVal').textContent = syncEpoch.toFixed(0);
-        setStatus('playing · epoch ' + syncEpoch.toFixed(0), true);
+        syncEpoch = getUTC() - (audio.currentTime || 0);
       }).catch(() => {
-        setStatus('tap play again · mobile requires a gesture');
+        showToast('tap play again · mobile requires a gesture');
       });
     }
   }
@@ -696,14 +659,8 @@
       const drift = audio.currentTime - target;
       driftHistory.push(drift);
       if (driftHistory.length > 8) driftHistory.shift();
-      const avg = (driftHistory.reduce((a, b) => a + b, 0) / driftHistory.length).toFixed(2);
-      document.getElementById('driftVal').textContent = avg + 's';
-      document.getElementById('targetVal').textContent = fmt(Math.max(0, target));
       setPip(Math.abs(drift) < 0.4 ? 'synced' : 'live');
-      if (Math.abs(drift) > 1.5) {
-        seekToEpoch();
-        setStatus('resynced · drift was ' + drift.toFixed(1) + 's', true);
-      }
+      if (Math.abs(drift) > 1.5) seekToEpoch();
     }, 2000);
   }
 
@@ -722,6 +679,95 @@
     document.getElementById('volSlider').style.background =
       'linear-gradient(to right, #c8a84b ' + pct + ', #2a1e0e ' + pct + ')';
   }
+  // ── Arm panel ──────────────────────────────────────────────────────────────
+  (function buildBreath() {
+    const row = document.getElementById('breathRow');
+    for (let i = 0; i < 12; i++) {
+      const b = document.createElement('div');
+      b.className = 'breath-bar'; b.id = 'bb' + i;
+      row.appendChild(b);
+    }
+  })();
+
+  let countdownArmed = false;
+  let breathPhase = 0;
+  let breathTimer = null;
+
+  function startBreath(speed, color, urgent) {
+    clearInterval(breathTimer);
+    breathTimer = setInterval(() => {
+      breathPhase = (breathPhase + 1) % 12;
+      for (let i = 0; i < 12; i++) {
+        const b = document.getElementById('bb' + i);
+        if (!b) continue;
+        const dist = Math.min(Math.abs(i - breathPhase), 12 - Math.abs(i - breathPhase));
+        b.style.height = Math.max(4, 32 - dist * 6) + 'px';
+        b.style.opacity = Math.max(0.1, 0.95 - dist * 0.18);
+        b.style.background = color;
+      }
+    }, speed);
+  }
+
+  function updateArmBreath() {
+    const now = new Date();
+    const remaining = 60 - now.getUTCSeconds();
+    if (countdownArmed) {
+      const urgent = remaining <= 10;
+      startBreath(urgent ? 60 : remaining <= 30 ? 120 : 220,
+        urgent ? '#e87040' : 'var(--gold-lt)', urgent);
+      document.getElementById('armLabel').textContent =
+        urgent ? 'starting in ' + remaining + 's' : 'armed · next minute';
+      if (remaining === 60) fireSync();
+    } else {
+      startBreath(320, 'var(--gold)', false);
+    }
+  }
+
+  function fireSync() {
+    if (!audio) return;
+    syncEpoch = getUTC();
+    audio.currentTime = 0;
+    audio.play().then(() => {
+      isPlaying = true;
+      reelsPlay();
+      document.getElementById('playIcon').style.display = 'none';
+      document.getElementById('pauseIcon').style.display = '';
+      startSync();
+      vuTimer = setInterval(animateVU, 80);
+      setPip('live');
+      countdownArmed = false;
+      document.getElementById('armPanel').className = 'arm-panel';
+      document.getElementById('armLabel').textContent = 'tap to arm';
+      startBreath(320, 'var(--gold)', false);
+    }).catch(() => {
+      showToast('tap play — mobile blocked autoplay');
+      countdownArmed = false;
+    });
+  }
+
+  document.getElementById('armPanel').addEventListener('click', function() {
+    if (!audio) { showToast('loading track…'); return; }
+    countdownArmed = !countdownArmed;
+    if (countdownArmed) {
+      this.className = 'arm-panel armed';
+      document.getElementById('armLabel').textContent = 'armed · next minute';
+      const now = new Date();
+      const nextMin = new Date(now);
+      nextMin.setUTCSeconds(0); nextMin.setUTCMilliseconds(0);
+      nextMin.setUTCMinutes(now.getUTCMinutes() + 1);
+      syncEpoch = nextMin.getTime() / 1000;
+      updateShareBox();
+      showToast('armed · starts at next UTC minute');
+    } else {
+      this.className = 'arm-panel';
+      document.getElementById('armLabel').textContent = 'tap to arm';
+      startBreath(320, 'var(--gold)', false);
+      showToast('disarmed');
+    }
+  });
+
+  setInterval(updateArmBreath, 1000);
+  startBreath(320, 'var(--gold)', false);
 </script>
 </body>
 </html>
