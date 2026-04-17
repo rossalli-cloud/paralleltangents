@@ -532,7 +532,7 @@
     audio.addEventListener('loadedmetadata', () => {
       const raw = url.split('/').pop().replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ') || 'Track';
       const name = raw.charAt(0).toUpperCase() + raw.slice(1);
-      document.getElementById('trackTitle').textContent = name.length > 28 ? name.slice(0, 26) + '…' : name;
+      document.getElementById('trackTitle').textContent = 'Instructions';
       document.getElementById('trackSub').textContent =
         (audio.duration && isFinite(audio.duration)) ? fmt(audio.duration) + ' · A SIDE' : 'LIVE · A SIDE';
       document.getElementById('duration').textContent =
