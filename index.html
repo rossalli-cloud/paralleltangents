@@ -750,6 +750,13 @@
       syncEpoch = nextMin.getTime() / 1000;
       updateShareBox();
       showToast('armed · starts at next UTC minute');
+      // Use this tap as the iOS gesture — silently play then pause
+      // so the browser unlocks audio for the auto-fire at the minute
+      audio.currentTime = 0;
+      audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      }).catch(() => {});
     } else {
       this.className = 'arm-panel';
       document.getElementById('armLabel').textContent = 'tap to arm';
