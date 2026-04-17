@@ -202,6 +202,12 @@
     .play-btn:hover { transform: scale(1.05); }
     .play-btn:active { transform: scale(0.95); }
     .play-btn.locked { opacity: 0.4; cursor: default; pointer-events: none; }
+    .play-btn.needs-tap { animation: needsTap 0.9s ease-in-out infinite; }
+    @keyframes needsTap {
+      0%   { transform: scale(1);    box-shadow: 0 3px 10px rgba(0,0,0,0.6), 0 0 0 0 rgba(200,168,75,0.7); }
+      50%  { transform: scale(1.12); box-shadow: 0 3px 10px rgba(0,0,0,0.6), 0 0 0 12px rgba(200,168,75,0); }
+      100% { transform: scale(1);    box-shadow: 0 3px 10px rgba(0,0,0,0.6), 0 0 0 0 rgba(200,168,75,0); }
+    }
 
     /* ── Volume ── */
     .vol-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
@@ -612,6 +618,7 @@
         reelsPlay();
         document.getElementById('playIcon').style.display = 'none';
         document.getElementById('pauseIcon').style.display = '';
+        document.getElementById('playBtn').classList.remove('needs-tap');
         startSync();
         vuTimer = setInterval(animateVU, 80);
         setPip('live');
@@ -704,6 +711,7 @@
       reelsPlay();
       document.getElementById('playIcon').style.display = 'none';
       document.getElementById('pauseIcon').style.display = '';
+      document.getElementById('playBtn').classList.remove('needs-tap');
       document.getElementById('playBtn').classList.add('locked');
       startSync();
       vuTimer = setInterval(animateVU, 80);
@@ -713,8 +721,9 @@
       document.getElementById('armLabel').textContent = 'tap to arm';
       startBreath(320, 'var(--gold)', false);
     }).catch(() => {
-      showToast('tap play — mobile blocked autoplay');
-      countdownArmed = false;
+      const btn = document.getElementById('playBtn');
+      btn.classList.add('needs-tap');
+      showToast('tap play to begin');
     });
   }
 
