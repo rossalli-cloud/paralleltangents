@@ -606,12 +606,16 @@
       clearInterval(vuTimer);
       animateVU();
       setPip('idle');
-      setStatus('paused · epoch preserved — others can still join');
     } else {
-      if (syncEpoch === null) {
-        syncEpoch = getUTC() - (audio.currentTime || 0);
+      // If epoch already set (e.g. after iOS autoplay block), seek to correct
+      // position based on how much real time has elapsed since epoch
+      if (syncEpoch !== null) {
+        const correctPos = getUTC() - syncEpoch;
+        if (correctPos > 0 && audio.duration && isFinite(audio.duration)) {
+          audio.currentTime = Math.min(correctPos, audio.duration);
+        }
       } else {
-        seekToEpoch();
+        syncEpoch = getUTC() - (audio.currentTime || 0);
       }
       audio.play().then(() => {
         isPlaying = true;
@@ -619,12 +623,12 @@
         document.getElementById('playIcon').style.display = 'none';
         document.getElementById('pauseIcon').style.display = '';
         document.getElementById('playBtn').classList.remove('needs-tap');
+        document.getElementById('playBtn').classList.add('locked');
         startSync();
         vuTimer = setInterval(animateVU, 80);
         setPip('live');
-        syncEpoch = getUTC() - (audio.currentTime || 0);
       }).catch(() => {
-        showToast('tap play again · mobile requires a gesture');
+        showToast('tap play again');
       });
     }
   }
@@ -704,6 +708,7 @@
 
   function fireSync() {
     if (!audio) return;
+    // Record the exact UTC moment the track should start from position 0
     syncEpoch = getUTC();
     audio.currentTime = 0;
     audio.play().then(() => {
@@ -721,8 +726,13 @@
       document.getElementById('armLabel').textContent = 'tap to arm';
       startBreath(320, 'var(--gold)', false);
     }).catch(() => {
+      // iOS blocked autoplay — epoch is already set, so when user taps
+      // play manually, seekToEpoch() will calculate the correct position
       const btn = document.getElementById('playBtn');
       btn.classList.add('needs-tap');
+      countdownArmed = false;
+      document.getElementById('armPanel').className = 'arm-panel';
+      document.getElementById('armLabel').textContent = 'tap play to join';
       showToast('tap play to begin');
     });
   }
