@@ -750,13 +750,17 @@
       syncEpoch = nextMin.getTime() / 1000;
       updateShareBox();
       showToast('armed · starts at next UTC minute');
-      // Use this tap as the iOS gesture — silently play then pause
-      // so the browser unlocks audio for the auto-fire at the minute
+      // Use this tap as the iOS gesture unlock — mute, play, pause immediately
+      // so iOS allows autoplay later without the user hearing anything
+      audio.muted = true;
       audio.currentTime = 0;
       audio.play().then(() => {
         audio.pause();
         audio.currentTime = 0;
-      }).catch(() => {});
+        audio.muted = false;
+      }).catch(() => {
+        audio.muted = false;
+      });
     } else {
       this.className = 'arm-panel';
       document.getElementById('armLabel').textContent = 'tap to arm';
@@ -767,6 +771,30 @@
 
   setInterval(updateArmBreath, 1000);
   startBreath(320, 'var(--gold)', false);
+
+  // ── Background tab recovery ────────────────────────────────────────────────
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState !== 'visible') return;
+
+    // If playing, check drift and resync immediately
+    if (isPlaying && syncEpoch !== null) {
+      const target = getUTC() - syncEpoch;
+      if (audio.duration && isFinite(audio.duration)) {
+        const drift = Math.abs(audio.currentTime - target);
+        if (drift > 0.5) {
+          audio.currentTime = Math.min(Math.max(0, target), audio.duration);
+        }
+      }
+    }
+
+    // If armed and the minute has already passed while backgrounded, fire now
+    if (countdownArmed && syncEpoch !== null) {
+      const now = getUTC();
+      if (now >= syncEpoch) {
+        fireSync();
+      }
+    }
+  });
 </script>
 </body>
 </html>
