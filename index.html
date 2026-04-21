@@ -180,6 +180,14 @@
       color: var(--text-muted);
     }
 
+    .time-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--gold);
+      padding-top: 8px;
+    }
+
     .controls {
       display: flex;
       align-items: center;
@@ -224,9 +232,14 @@
       border-radius: 6px;
       color: var(--text-dim);
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px;
-      padding: 7px 10px;
+      font-size: 11px;
+      padding: 10px 12px;
       outline: none;
+      text-align: center;
+    }
+    .share-input::placeholder {
+      color: var(--gold);
+      font-size: 11px;
     }
     .copy-btn {
       background: var(--bg-mid);
@@ -309,14 +322,13 @@
     </div>
     <div class="tape-path"><div class="tape-sheen" id="tapeSheen"></div></div>
     <div class="vu-row" id="vuRow"></div>
-  </div>
-
-  <div class="progress-area">
     <div class="time-row">
       <span id="currentTime">0:00</span>
       <span id="duration">—</span>
     </div>
   </div>
+
+  <div class="progress-area"></div>
 
   <div class="controls">
     <button class="play-btn" id="playBtn" onclick="togglePlay()">
@@ -327,8 +339,7 @@
 
   <div class="share-section">
     <div class="share-row">
-      <input class="share-input" id="shareInput" readonly placeholder="press play to sync">
-
+      <input class="share-input" id="shareInput" readonly placeholder="wait for all to sync before pressing play">
     </div>
     <div class="status-row" id="statusRow"></div>
   </div>
