@@ -27,8 +27,6 @@
       --text-muted:#4a3820;
       --text-dark: #6a5030;
       --green:     #6abf69;
-      --label-bg:  #c8a84b;
-      --label-fg:  #1a1000;
     }
 
     html, body {
@@ -42,7 +40,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── Shell ── */
     .shell {
       background: var(--bg);
       border-radius: 20px;
@@ -56,14 +53,12 @@
     }
     .shell::before {
       content: '';
-      position: absolute;
-      inset: 0;
+      position: absolute; inset: 0;
       background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
       pointer-events: none;
       border-radius: 20px;
     }
 
-    /* ── Header ── */
     .deck-title {
       font-family: 'Playfair Display', serif;
       font-size: 12px;
@@ -71,341 +66,311 @@
       text-transform: uppercase;
       color: var(--text-dim);
       text-align: center;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
     }
 
-    /* ── Tape window ── */
+    .url-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .url-input {
+      flex: 1;
+      background: var(--bg-deep);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .url-input:focus { border-color: var(--gold-dk); }
+    .url-input::placeholder { color: var(--text-muted); }
+    .load-btn {
+      background: var(--gold-dk);
+      border: none;
+      border-radius: 8px;
+      color: #1a1000;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 9px 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .load-btn:hover { background: var(--gold); }
+
     .tape-window {
       background: var(--bg-deep);
       border-radius: 14px;
       border: 2px solid var(--border);
       padding: 18px 16px 14px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       position: relative;
     }
     .tape-window::after {
       content: '';
-      position: absolute;
-      inset: 0;
+      position: absolute; inset: 0;
       border-radius: 12px;
       box-shadow: inset 0 2px 10px rgba(0,0,0,0.7);
       pointer-events: none;
     }
 
     .reels-row {
-      display: grid;
-      grid-template-columns: 74px 1fr 74px;
+      display: flex;
+      justify-content: space-around;
       align-items: center;
-      justify-items: center;
       margin-bottom: 14px;
     }
-    .reel-wrap { position: relative; width: 74px; height: 74px; display: flex; align-items: center; justify-content: center; }
-    .load-btn {
-      background: var(--gold);
-      border: none;
-      border-radius: 6px;
-      color: #1a1000;
-      font-family: 'IBM Plex Mono', monospace;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      text-align: center;
-    }
-    .load-btn:active { transform: scale(0.97); background: #b89a3a; }
+
+    .reel-wrap { position: relative; width: 88px; height: 88px; display: flex; align-items: center; justify-content: center; }
     .reel {
-      width: 68px; height: 68px; border-radius: 50%;
+      width: 80px; height: 80px;
+      border-radius: 50%;
       border: 2px solid #4a3820;
       background: radial-gradient(circle at 50% 50%, #2a1f0e 0%, #1a1208 60%, #0e0b07 100%);
       display: flex; align-items: center; justify-content: center;
       position: relative;
     }
-    .reel.spin-fast  { animation: reelSpin 1.6s linear infinite; }
-    .reel.spin-slow  { animation: reelSpin 3.2s linear infinite; }
+    .reel.spinning      { animation: reelSpin 1.8s linear infinite; }
+    .reel.spinning-slow { animation: reelSpin 3.5s linear infinite; }
     @keyframes reelSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    .reel-hub {
-      width: 18px; height: 18px; border-radius: 50%;
-      background: #3a2c18; border: 1.5px solid #6a5030;
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    }
 
-    .tape-path {
-      height: 10px;
-      background: linear-gradient(to bottom, #1a0f05, #3a2510, #1a0f05);
-      border-radius: 2px;
-      margin: 0 8px 10px;
-      position: relative;
-      overflow: hidden;
+    .reel svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .reel-hub {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #3a2c18;
+      border: 1.5px solid #6a5030;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
     }
-    .tape-sheen {
-      position: absolute; inset: 0;
-      background: linear-gradient(to right, transparent 0%, rgba(180,140,60,0.15) 30%, rgba(180,140,60,0.35) 50%, rgba(180,140,60,0.15) 70%, transparent 100%);
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-    .tape-sheen.active { opacity: 1; animation: tapeSheen 1.8s linear infinite; }
-    @keyframes tapeSheen { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 
     .track-label {
-      background: var(--label-bg);
+      background: var(--gold);
       border-radius: 6px;
       padding: 8px 10px;
       text-align: center;
-      flex: 1;
     }
     .label-title {
       font-family: 'Playfair Display', serif;
-      font-size: 14px;
+      font-size: 11px;
+      color: #1a1000;
       font-weight: 500;
-      color: var(--label-fg);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 100px;
     }
-    .label-sub { font-size: 9px; color: #5a4010; letter-spacing: 0.12em; margin-top: 2px; }
-
-    /* VU meters */
-    .vu-row { display: flex; gap: 4px; align-items: flex-end; height: 24px; }
-    .vu-bar { flex: 1; background: rgba(0,0,0,0.5); border-radius: 1px; position: relative; overflow: hidden; height: 24px; }
-    .vu-fill {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: linear-gradient(to top, var(--gold), var(--gold-lt), #f0d070);
-      height: 0%;
-      transition: height 0.07s ease-out;
-      border-radius: 1px;
+    .label-sub {
+      font-size: 9px;
+      color: #5a3800;
+      letter-spacing: 0.2em;
+      margin-top: 3px;
     }
 
-    /* ── Progress ── */
+    .tape-path {
+      height: 6px;
+      background: var(--bg-mid);
+      border-radius: 3px;
+      margin: 0 8px 12px;
+      overflow: hidden;
+    }
+    .tape-sheen {
+      height: 100%;
+      width: 30%;
+      background: linear-gradient(90deg, transparent, rgba(200,168,75,0.15), transparent);
+      animation: tapeMove 2s linear infinite;
+      animation-play-state: paused;
+    }
+    .tape-sheen.playing { animation-play-state: running; }
+    @keyframes tapeMove { from { transform: translateX(-100%); } to { transform: translateX(400%); } }
+
+    .vu-row {
+      display: flex;
+      gap: 3px;
+      justify-content: center;
+      align-items: flex-end;
+      height: 32px;
+    }
+    .vu-bar {
+      width: 5px;
+      border-radius: 2px;
+      background: var(--gold-dk);
+      opacity: 0.2;
+      height: 4px;
+    }
+
     .progress-area { margin-bottom: 16px; }
     .scrub-wrap {
-      height: 6px; background: var(--bg-deep); border-radius: 3px;
-      cursor: pointer; margin-bottom: 6px; position: relative;
-      border: 1px solid var(--border-dim);
+      height: 5px;
+      background: var(--border-dim);
+      border-radius: 3px;
+      cursor: pointer;
+      margin-bottom: 6px;
     }
     .scrub-fill {
       height: 100%;
-      background: linear-gradient(to right, var(--gold), var(--gold-lt));
-      border-radius: 3px; width: 0%; pointer-events: none;
-      transition: width 0.25s linear;
+      background: var(--gold-dk);
+      border-radius: 3px;
+      width: 0%;
     }
-    .time-row { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-dark); letter-spacing: 0.08em; }
-
-    /* ── Controls ── */
-    .controls { display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-    .play-btn {
-      width: 60px; height: 60px; border-radius: 50%;
-      background: radial-gradient(circle at 38% 32%, var(--gold-lt), var(--gold) 50%, var(--gold-dk));
-      border: 2px solid #6a5020;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      color: var(--label-fg);
-      box-shadow: 0 3px 10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2);
-      transition: transform 0.1s;
-    }
-    .play-btn:hover { transform: scale(1.05); }
-    .play-btn:active { transform: scale(0.95); }
-    .play-btn.locked { opacity: 0.4; cursor: default; pointer-events: none; }
-    .play-btn.needs-tap { animation: needsTap 0.9s ease-in-out infinite; }
-    @keyframes needsTap {
-      0%   { transform: scale(1);    box-shadow: 0 3px 10px rgba(0,0,0,0.6), 0 0 0 0 rgba(200,168,75,0.7); }
-      50%  { transform: scale(1.12); box-shadow: 0 3px 10px rgba(0,0,0,0.6), 0 0 0 12px rgba(200,168,75,0); }
-      100% { transform: scale(1);    box-shadow: 0 3px 10px rgba(0,0,0,0.6), 0 0 0 0 rgba(200,168,75,0); }
+    .time-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-muted);
     }
 
-    /* ── Volume ── */
-    .vol-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
-    .vol-label { font-size: 9px; color: var(--text-dark); letter-spacing: 0.16em; width: 28px; flex-shrink: 0; }
-    input[type=range].vol-slider {
-      flex: 1; -webkit-appearance: none; height: 4px; border-radius: 2px;
-      background: linear-gradient(to right, var(--gold) 80%, #2a1e0e 80%);
-      outline: none; cursor: pointer;
-    }
-    input[type=range].vol-slider::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
-      background: radial-gradient(circle at 38% 32%, var(--gold-lt), #b89830);
-      cursor: pointer; border: 1px solid #6a5020;
-    }
-
-    /* ── Sync panel ── */
-    .sync-panel {
-      background: var(--bg-mid);
-      border-radius: 12px;
-      padding: 16px;
-      border: 1px solid var(--border);
-    }
-    .sync-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .sync-heading { font-size: 9px; letter-spacing: 0.2em; color: var(--text-dark); text-transform: uppercase; }
-    .sync-pill {
-      display: flex; align-items: center; gap: 5px;
-      background: var(--bg-deep); border: 1px solid var(--border-dim);
-      border-radius: 20px; padding: 3px 10px;
-      font-size: 9px; letter-spacing: 0.1em; color: var(--text-dark);
-    }
-    .pip { width: 6px; height: 6px; border-radius: 50%; background: #3a2e1e; flex-shrink: 0; transition: background 0.3s, box-shadow 0.3s; }
-    .pip.live  { background: var(--gold); box-shadow: 0 0 6px rgba(200,168,75,0.7); }
-    .pip.synced { background: var(--green); box-shadow: 0 0 6px rgba(106,191,105,0.6); }
-
-    .utc-clock { font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 300; color: var(--text); letter-spacing: 0.05em; margin-bottom: 3px; }
-    .utc-sub { font-size: 8px; color: var(--text-muted); letter-spacing: 0.16em; margin-bottom: 12px; }
-
-    .metrics { display: flex; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
-    .metric { font-size: 10px; color: var(--text-muted); letter-spacing: 0.06em; }
-    .metric span { color: var(--text-dim); }
-
-    /* ── Share row ── */
-    .share-section { border-top: 1px solid var(--border-dim); padding-top: 12px; margin-top: 2px; }
-    .share-label { font-size: 9px; color: var(--text-dark); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 8px; }
-    .share-link-box {
-      background: var(--bg-deep);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font-size: 11px;
-      color: var(--text-dim);
-      word-break: break-all;
-      margin-bottom: 8px;
-      min-height: 38px;
+    .controls {
       display: flex;
       align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 20px;
     }
-    .share-link-box.empty { color: var(--text-muted); font-style: italic; }
-    .share-btns { display: flex; gap: 8px; }
-    .share-btn {
-      flex: 1;
-      background: none;
+    .ctrl-btn {
+      background: var(--bg-mid);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 9px;
       color: var(--text-dim);
-      font-size: 10px;
-      letter-spacing: 0.1em;
       font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      padding: 8px 12px;
       cursor: pointer;
-      text-align: center;
-      transition: border-color 0.15s, color 0.15s;
+      transition: background 0.2s, color 0.2s;
     }
-    .share-btn:hover { border-color: var(--gold); color: var(--text); }
-    .share-btn:active { transform: scale(0.97); }
-    .share-btn.primary { background: var(--gold); border-color: var(--gold); color: var(--label-fg); }
-    .share-btn.primary:hover { background: var(--gold-lt); border-color: var(--gold-lt); }
+    .ctrl-btn:hover { background: var(--border); color: var(--text); }
 
-    /* ── Status ── */
-    .status-line {
+    .play-btn {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--gold-dk);
+      border: none;
+      color: #1a1000;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .play-btn:hover  { background: var(--gold); }
+    .play-btn:active { transform: scale(0.95); }
+    .play-btn.ready  { background: var(--gold); box-shadow: 0 0 0 4px rgba(200,168,75,0.25); }
+
+    .share-section {
+      border-top: 1px solid var(--border-dim);
+      padding-top: 14px;
+    }
+    .share-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .share-row { display: flex; gap: 8px; }
+    .share-input {
+      flex: 1;
+      background: var(--bg-deep);
+      border: 1px solid var(--border-dim);
+      border-radius: 6px;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      padding: 7px 10px;
+      outline: none;
+    }
+    .copy-btn {
+      background: var(--bg-mid);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .copy-btn:hover { background: var(--border); }
+
+    .status-row {
+      margin-top: 10px;
       font-size: 10px;
       color: var(--text-dark);
-      letter-spacing: 0.06em;
       min-height: 14px;
-      border-top: 1px solid var(--border-dim);
-      padding-top: 10px;
-      margin-top: 12px;
-      transition: color 0.3s;
-    }
-    .status-line.ok { color: var(--green); }
-
-    /* ── Arm panel ── */
-    .arm-panel {
-      margin-top: 18px;
-      background: var(--bg-mid);
-      border-radius: 14px;
-      padding: 22px 16px 20px;
-      border: 1px solid var(--border);
+      letter-spacing: 0.04em;
       text-align: center;
-      cursor: pointer;
-      transition: border-color 0.3s;
-      -webkit-tap-highlight-color: transparent;
     }
-    .arm-panel.armed { border-color: var(--gold); }
-    .arm-panel.firing { border-color: #e87040; }
-    .breath-row {
-      display: flex; gap: 5px; justify-content: center; align-items: center;
-      height: 36px; margin-bottom: 16px;
-    }
-    .breath-bar {
-      width: 7px; border-radius: 3px;
-      background: var(--gold);
-      opacity: 0.18;
-      height: 6px;
-      transition: height 0.18s ease, opacity 0.18s ease, background 0.3s;
-    }
-    .arm-label {
-      font-size: 10px; letter-spacing: 0.2em;
-      color: var(--text-dark);
-      text-transform: uppercase;
-      transition: color 0.3s;
-    }
-    .arm-panel.armed .arm-label { color: var(--gold); }
-    .arm-panel.firing .arm-label { color: #e87040; }
+    .status-row.ok { color: var(--green); }
 
-    /* ── Toast ── */
     .toast {
       position: fixed;
-      bottom: 32px;
-      left: 50%;
+      bottom: 32px; left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: var(--gold);
-      color: var(--label-fg);
-      font-size: 12px;
+      background: rgba(200,168,75,0.95);
+      color: #1a1000;
       font-family: 'IBM Plex Mono', monospace;
-      letter-spacing: 0.08em;
+      font-size: 11px;
       padding: 10px 20px;
-      border-radius: 24px;
+      border-radius: 20px;
       opacity: 0;
-      transition: opacity 0.25s, transform 0.25s;
       pointer-events: none;
-      z-index: 100;
+      transition: opacity 0.25s, transform 0.25s;
+      z-index: 999;
       white-space: nowrap;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
-
 <div class="shell">
-  <!-- Tape window -->
+  <div class="deck-title">Tape Deck &middot; UTC Sync</div>
+
+  <div class="url-row">
+    <input class="url-input" id="audioUrl" placeholder="paste audio url…" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="load-btn" onclick="loadTrack()">LOAD</button>
+  </div>
+
   <div class="tape-window">
     <div class="reels-row">
       <div class="reel-wrap">
         <div class="reel" id="reelL">
-          <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 82 82">
-            <g stroke="#4a3820" stroke-width="1.5" fill="none">
-              <line x1="41" y1="10" x2="41" y2="72"/>
-              <line x1="10" y1="41" x2="72" y2="41"/>
-              <line x1="18" y1="18" x2="64" y2="64"/>
-              <line x1="64" y1="18" x2="18" y2="64"/>
-            </g>
-          </svg>
+          <svg viewBox="0 0 82 82"><g stroke="#4a3820" stroke-width="1.5" fill="none">
+            <line x1="41" y1="10" x2="41" y2="72"/>
+            <line x1="10" y1="41" x2="72" y2="41"/>
+            <line x1="18" y1="18" x2="64" y2="64"/>
+            <line x1="64" y1="18" x2="18" y2="64"/>
+          </g></svg>
           <div class="reel-hub"></div>
         </div>
       </div>
-
-      <div style="text-align:center;padding:0 6px;">
+      <div style="text-align:center;flex:1;padding:0 10px;">
         <div class="track-label">
           <div class="label-title" id="trackTitle">No track loaded</div>
           <div class="label-sub" id="trackSub">A &middot; SIDE</div>
         </div>
-        <button class="load-btn" onclick="loadTrack(false)" style="margin-top:8px;width:100%;padding:6px 8px;line-height:1.3;white-space:normal;">
-          <span style="display:block;font-size:11px;">parallel</span>
-          <span style="display:block;font-size:11px;">tangents</span>
-        </button>
       </div>
-
       <div class="reel-wrap">
         <div class="reel" id="reelR">
-          <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 82 82">
-            <g stroke="#4a3820" stroke-width="1.5" fill="none">
-              <line x1="41" y1="10" x2="41" y2="72"/>
-              <line x1="10" y1="41" x2="72" y2="41"/>
-              <line x1="18" y1="18" x2="64" y2="64"/>
-              <line x1="64" y1="18" x2="18" y2="64"/>
-            </g>
-          </svg>
+          <svg viewBox="0 0 82 82"><g stroke="#4a3820" stroke-width="1.5" fill="none">
+            <line x1="41" y1="10" x2="41" y2="72"/>
+            <line x1="10" y1="41" x2="72" y2="41"/>
+            <line x1="18" y1="18" x2="64" y2="64"/>
+            <line x1="64" y1="18" x2="18" y2="64"/>
+          </g></svg>
           <div class="reel-hub"></div>
         </div>
       </div>
     </div>
-
     <div class="tape-path"><div class="tape-sheen" id="tapeSheen"></div></div>
     <div class="vu-row" id="vuRow"></div>
   </div>
 
-  <!-- Progress -->
   <div class="progress-area">
     <div class="scrub-wrap" id="scrubWrap">
       <div class="scrub-fill" id="scrubFill"></div>
@@ -416,385 +381,242 @@
     </div>
   </div>
 
-  <!-- Controls -->
   <div class="controls">
+    <button class="ctrl-btn" onclick="skip(-15)">&#9664;&#9664; 15s</button>
     <button class="play-btn" id="playBtn" onclick="togglePlay()">
-      <svg id="playIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
-      <svg id="pauseIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+      <svg id="playIcon"  width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg id="pauseIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
     </button>
+    <button class="ctrl-btn" onclick="skip(15)">15s &#9654;&#9654;</button>
   </div>
 
-  <!-- Volume -->
-  <div class="vol-row">
-    <span class="vol-label">VOL</span>
-    <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="80" step="1" oninput="setVolume(this.value)">
+  <div class="share-section">
+    <div class="share-label">share · sync link</div>
+    <div class="share-row">
+      <input class="share-input" id="shareInput" readonly placeholder="play to generate sync link">
+      <button class="copy-btn" onclick="copyLink()">COPY</button>
+    </div>
+    <div class="status-row" id="statusRow"></div>
   </div>
-
-  <!-- Arm panel -->
-  <div class="arm-panel" id="armPanel">
-    <div class="breath-row" id="breathRow"></div>
-    <div class="arm-label" id="armLabel">tap to arm</div>
-  </div>
-
-  <!-- UTC Clock -->
-  <div style="text-align:center;margin-top:18px;">
-    <div id="utcClock" style="font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:300;color:#d4c4a0;letter-spacing:0.06em;">--:--:--</div>
-    <div style="font-size:8px;letter-spacing:0.2em;color:#4a3820;margin-top:3px;">COORDINATED UNIVERSAL TIME</div>
-  </div>
-
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── State ──────────────────────────────────────────────────────────────────
-  let audio = null;
-  let isPlaying = false;
-  let syncEpoch = null;
-  let syncTimer = null;
-  let vuTimer = null;
-  let driftHistory = [];
-  let currentShareLink = '';
+let audio     = null;
+let isPlaying = false;
+let syncEpoch = null;
+let syncTimer = null;
+let vuTimer   = null;
 
-  // ── VU bars ────────────────────────────────────────────────────────────────
-  (function buildVU() {
-    const row = document.getElementById('vuRow');
-    for (let i = 0; i < 30; i++) {
-      const b = document.createElement('div'); b.className = 'vu-bar';
-      const f = document.createElement('div'); f.className = 'vu-fill'; f.id = 'vu' + i;
-      b.appendChild(f); row.appendChild(b);
-    }
-  })();
+function getUTC() { return Date.now() / 1000; }
 
-  function animateVU() {
-    for (let i = 0; i < 30; i++) {
-      const h = isPlaying
-        ? Math.max(4, Math.min(100, 45 + Math.sin(Date.now() / 180 + i * 0.45) * 28 + Math.random() * 28))
-        : 0;
-      const f = document.getElementById('vu' + i);
-      if (f) f.style.height = h + '%';
-    }
+function fmt(s) {
+  if (!isFinite(s) || s < 0) return '0:00';
+  return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+}
+
+function showToast(msg, dur = 2200) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+function setStatus(msg, ok = false) {
+  const s = document.getElementById('statusRow');
+  s.textContent = msg;
+  s.className = 'status-row' + (ok ? ' ok' : '');
+}
+
+// Build VU bars
+(function() {
+  const row = document.getElementById('vuRow');
+  for (let i = 0; i < 18; i++) {
+    const b = document.createElement('div');
+    b.className = 'vu-bar'; b.id = 'vu' + i;
+    row.appendChild(b);
   }
+})();
 
-  function getUTC() { return Date.now() / 1000; }
-
-  function updateClock() {
-    const n = new Date();
-    const h = String(n.getUTCHours()).padStart(2, '0');
-    const m = String(n.getUTCMinutes()).padStart(2, '0');
-    const s = String(n.getUTCSeconds()).padStart(2, '0');
-    document.getElementById('utcClock').textContent = h + ':' + m + ':' + s;
+function animateVU() {
+  for (let i = 0; i < 18; i++) {
+    const b = document.getElementById('vu' + i);
+    if (!b) continue;
+    b.style.height  = (4 + Math.random() * 26) + 'px';
+    b.style.opacity = 0.3 + Math.random() * 0.65;
   }
-  setInterval(updateClock, 1000);
-  updateClock();
+}
 
-  // ── Auto-load hardcoded track ──────────────────────────────────────────────
-  const TRACK_URL = 'https://rossalli-cloud.github.io/paralleltangents/paralleltangents%20mixdown1.mp3';
-
-  (function initFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    const epoch = params.get('epoch');
-
-    if (epoch) {
-      syncEpoch = parseFloat(epoch);
-    }
-
-    setTimeout(() => {
-      loadTrack(true);
-    }, 400);
-  })();
-
-  // ── Helpers ────────────────────────────────────────────────────────────────
-  function fmt(s) {
-    if (!isFinite(s) || isNaN(s)) return '0:00';
-    const m = Math.floor(s / 60), sec = Math.floor(s % 60);
-    return m + ':' + (sec < 10 ? '0' : '') + sec;
+function stopVU() {
+  clearInterval(vuTimer);
+  for (let i = 0; i < 18; i++) {
+    const b = document.getElementById('vu' + i);
+    if (b) { b.style.height = '4px'; b.style.opacity = '0.2'; }
   }
+}
 
-  function setStatus(msg, isOk) {
-    console.log(msg);
-  }
+function reelsPlay() {
+  document.getElementById('reelL').className = 'reel spinning';
+  document.getElementById('reelR').className = 'reel spinning-slow';
+  document.getElementById('tapeSheen').classList.add('playing');
+}
+function reelsStop() {
+  document.getElementById('reelL').className = 'reel';
+  document.getElementById('reelR').className = 'reel';
+  document.getElementById('tapeSheen').classList.remove('playing');
+}
 
-  function setPip() {}
-  function updateShareBox() {}
-  function copyLink() {}
-  function shareLink() {}
+document.getElementById('scrubWrap').addEventListener('click', function(e) {
+  if (!audio || !audio.duration) return;
+  audio.currentTime = ((e.clientX - this.getBoundingClientRect().left) / this.offsetWidth) * audio.duration;
+  syncEpoch = getUTC() - audio.currentTime;
+  updateShareBox();
+});
 
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2200);
-  }
+function loadTrack() {
+  const url = document.getElementById('audioUrl').value.trim();
+  if (!url) { showToast('paste an audio URL first'); return; }
 
-  // ── Load ───────────────────────────────────────────────────────────────────
-  function loadTrack(silent) {
-    const url = TRACK_URL;
-    if (audio) { audio.pause(); audio.src = ''; }
-    audio = new Audio();
-    audio.volume = 0.8;
-    audio.preload = 'metadata';
-
-    audio.addEventListener('loadedmetadata', () => {
-      const raw = url.split('/').pop().replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ') || 'Track';
-      const name = raw.charAt(0).toUpperCase() + raw.slice(1);
-      document.getElementById('trackTitle').textContent = 'Instructions';
-      document.getElementById('trackSub').textContent =
-        (audio.duration && isFinite(audio.duration)) ? fmt(audio.duration) + ' · A SIDE' : 'LIVE · A SIDE';
-      document.getElementById('duration').textContent =
-        (audio.duration && isFinite(audio.duration)) ? fmt(audio.duration) : '∞';
-      if (!silent) setStatus('tape loaded — press play on all devices');
-    });
-
-    audio.addEventListener('error', () => setStatus('could not load — check url / cors headers'));
-    audio.addEventListener('timeupdate', updateScrub);
-    audio.src = url;
-  }
-
-  // ── Scrub ──────────────────────────────────────────────────────────────────
-  function updateScrub() {
-    if (!audio || !audio.duration || !isFinite(audio.duration)) return;
-    const pct = (audio.currentTime / audio.duration) * 100;
-    document.getElementById('scrubFill').style.width = pct + '%';
-    document.getElementById('currentTime').textContent = fmt(audio.currentTime);
-  }
-
-  document.getElementById('scrubWrap').addEventListener('click', function(e) {
-    if (!audio || !audio.duration || !isFinite(audio.duration)) return;
-    const r = this.getBoundingClientRect();
-    const pct = (e.clientX - r.left) / r.width;
-    audio.currentTime = pct * audio.duration;
-    if (syncEpoch !== null) { syncEpoch = getUTC() - audio.currentTime; updateShareBox(); }
-  });
-
-  // ── Reels ──────────────────────────────────────────────────────────────────
-  function reelsPlay() {
-    document.getElementById('reelL').className = 'reel spin-fast';
-    document.getElementById('reelR').className = 'reel spin-slow';
-    document.getElementById('tapeSheen').className = 'tape-sheen active';
-  }
-  function reelsStop() {
-    document.getElementById('reelL').className = 'reel';
-    document.getElementById('reelR').className = 'reel';
-    document.getElementById('tapeSheen').className = 'tape-sheen';
-  }
-
-  // ── Seek to epoch ──────────────────────────────────────────────────────────
-  function seekToEpoch() {
-    if (!audio || syncEpoch === null) return;
-    const target = getUTC() - syncEpoch;
-    if (isNaN(target)) return;
-    if (audio.duration && isFinite(audio.duration) && target >= audio.duration) {
-      audio.currentTime = 0; syncEpoch = getUTC(); return;
-    }
-    if (Math.abs(audio.currentTime - target) > 0.5) {
-      audio.currentTime = Math.max(0, target);
-    }
-  }
-
-  // ── Play / pause ───────────────────────────────────────────────────────────
-  function togglePlay() {
-    if (!audio) { setStatus('load a track first'); return; }
-
-    if (isPlaying) {
-      audio.pause();
-      isPlaying = false;
-      reelsStop();
-      document.getElementById('playIcon').style.display = '';
-      document.getElementById('pauseIcon').style.display = 'none';
-      clearInterval(syncTimer);
-      clearInterval(vuTimer);
-      animateVU();
-      setPip('idle');
-    } else {
-      // If epoch already set (e.g. after iOS autoplay block), seek to correct
-      // position based on how much real time has elapsed since epoch
-      if (syncEpoch !== null) {
-        const correctPos = getUTC() - syncEpoch;
-        if (correctPos > 0 && audio.duration && isFinite(audio.duration)) {
-          audio.currentTime = Math.min(correctPos, audio.duration);
-        }
-      } else {
-        syncEpoch = getUTC() - (audio.currentTime || 0);
-      }
-      audio.play().then(() => {
-        isPlaying = true;
-        reelsPlay();
-        document.getElementById('playIcon').style.display = 'none';
-        document.getElementById('pauseIcon').style.display = '';
-        document.getElementById('playBtn').classList.remove('needs-tap');
-        document.getElementById('playBtn').classList.add('locked');
-        startSync();
-        vuTimer = setInterval(animateVU, 80);
-        setPip('live');
-      }).catch(() => {
-        showToast('tap play again');
-      });
-    }
-  }
-
-  // ── Sync loop ──────────────────────────────────────────────────────────────
-  function startSync() {
+  if (audio) {
+    audio.pause();
     clearInterval(syncTimer);
-    syncTimer = setInterval(() => {
-      if (!audio || !isPlaying || syncEpoch === null) return;
-      const target = getUTC() - syncEpoch;
-      const drift = audio.currentTime - target;
-      driftHistory.push(drift);
-      if (driftHistory.length > 8) driftHistory.shift();
-      setPip(Math.abs(drift) < 0.4 ? 'synced' : 'live');
-      if (Math.abs(drift) > 1.5) seekToEpoch();
-    }, 2000);
+    stopVU();
+    reelsStop();
+    isPlaying = false;
+    syncEpoch = null;
+    document.getElementById('playBtn').classList.remove('ready');
   }
 
-  // ── Skip ───────────────────────────────────────────────────────────────────
-  function skip(s) {
-    if (!audio) return;
-    audio.currentTime = Math.max(0, (audio.currentTime || 0) + s);
-    if (syncEpoch !== null) { syncEpoch = getUTC() - audio.currentTime; updateShareBox(); }
-    document.getElementById('epochVal').textContent = syncEpoch ? syncEpoch.toFixed(0) : '—';
-  }
+  audio = new Audio();
+  audio.crossOrigin = 'anonymous';
+  audio.preload = 'auto';
 
-  // ── Volume ─────────────────────────────────────────────────────────────────
-  function setVolume(v) {
-    if (audio) audio.volume = v / 100;
-    const pct = v + '%';
-    document.getElementById('volSlider').style.background =
-      'linear-gradient(to right, #c8a84b ' + pct + ', #2a1e0e ' + pct + ')';
-  }
-  // ── Arm panel ──────────────────────────────────────────────────────────────
-  (function buildBreath() {
-    const row = document.getElementById('breathRow');
-    for (let i = 0; i < 12; i++) {
-      const b = document.createElement('div');
-      b.className = 'breath-bar'; b.id = 'bb' + i;
-      row.appendChild(b);
-    }
-  })();
-
-  let countdownArmed = false;
-  let breathPhase = 0;
-  let breathTimer = null;
-
-  function startBreath(speed, color, urgent) {
-    clearInterval(breathTimer);
-    breathTimer = setInterval(() => {
-      breathPhase = (breathPhase + 1) % 12;
-      for (let i = 0; i < 12; i++) {
-        const b = document.getElementById('bb' + i);
-        if (!b) continue;
-        const dist = Math.min(Math.abs(i - breathPhase), 12 - Math.abs(i - breathPhase));
-        b.style.height = Math.max(4, 32 - dist * 6) + 'px';
-        b.style.opacity = Math.max(0.1, 0.95 - dist * 0.18);
-        b.style.background = color;
-      }
-    }, speed);
-  }
-
-  function updateArmBreath() {
-    const now = new Date();
-    const remaining = 60 - now.getUTCSeconds();
-    if (countdownArmed) {
-      const urgent = remaining <= 10;
-      startBreath(urgent ? 60 : remaining <= 30 ? 120 : 220,
-        urgent ? '#e87040' : 'var(--gold-lt)', urgent);
-      document.getElementById('armLabel').textContent =
-        urgent ? 'starting in ' + remaining + 's' : 'armed · next minute';
-      if (remaining === 60) fireSync();
-    } else {
-      startBreath(320, 'var(--gold)', false);
-    }
-  }
-
-  function fireSync() {
-    if (!audio) return;
-    // Record the exact UTC moment the track should start from position 0
-    syncEpoch = getUTC();
-    audio.currentTime = 0;
-    audio.play().then(() => {
-      isPlaying = true;
-      reelsPlay();
-      document.getElementById('playIcon').style.display = 'none';
-      document.getElementById('pauseIcon').style.display = '';
-      document.getElementById('playBtn').classList.remove('needs-tap');
-      document.getElementById('playBtn').classList.add('locked');
-      startSync();
-      vuTimer = setInterval(animateVU, 80);
-      setPip('live');
-      countdownArmed = false;
-      document.getElementById('armPanel').className = 'arm-panel';
-      document.getElementById('armLabel').textContent = 'tap to arm';
-      startBreath(320, 'var(--gold)', false);
-    }).catch(() => {
-      // iOS blocked autoplay — epoch is already set, so when user taps
-      // play manually, seekToEpoch() will calculate the correct position
-      const btn = document.getElementById('playBtn');
-      btn.classList.add('needs-tap');
-      countdownArmed = false;
-      document.getElementById('armPanel').className = 'arm-panel';
-      document.getElementById('armLabel').textContent = 'tap play to join';
-      showToast('tap play to begin');
-    });
-  }
-
-  document.getElementById('armPanel').addEventListener('click', function() {
-    if (!audio) { showToast('loading track…'); return; }
-    countdownArmed = !countdownArmed;
-    if (countdownArmed) {
-      this.className = 'arm-panel armed';
-      document.getElementById('armLabel').textContent = 'armed · next minute';
-      const now = new Date();
-      const nextMin = new Date(now);
-      nextMin.setUTCSeconds(0); nextMin.setUTCMilliseconds(0);
-      nextMin.setUTCMinutes(now.getUTCMinutes() + 1);
-      syncEpoch = nextMin.getTime() / 1000;
-      updateShareBox();
-      showToast('armed · starts at next UTC minute');
-      // Use this tap as the iOS gesture unlock — mute, play, pause immediately
-      // so iOS allows autoplay later without the user hearing anything
-      audio.muted = true;
-      audio.currentTime = 0;
-      audio.play().then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.muted = false;
-      }).catch(() => {
-        audio.muted = false;
-      });
-    } else {
-      this.className = 'arm-panel';
-      document.getElementById('armLabel').textContent = 'tap to arm';
-      startBreath(320, 'var(--gold)', false);
-      showToast('disarmed');
-    }
+  audio.addEventListener('loadedmetadata', () => {
+    document.getElementById('duration').textContent =
+      isFinite(audio.duration) ? fmt(audio.duration) : '—';
+    try {
+      const parts = url.split('/');
+      const name  = decodeURIComponent(parts[parts.length - 1]).replace(/\.[^.]+$/, '');
+      document.getElementById('trackTitle').textContent = name.slice(0, 22) || 'Track';
+    } catch(e) { document.getElementById('trackTitle').textContent = 'Track'; }
+    setStatus('ready · hit play when everyone is set');
   });
 
-  setInterval(updateArmBreath, 1000);
-  startBreath(320, 'var(--gold)', false);
-
-  // ── Background tab recovery ────────────────────────────────────────────────
-  document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState !== 'visible') return;
-
-    // If playing, check drift and resync immediately
-    if (isPlaying && syncEpoch !== null) {
-      const target = getUTC() - syncEpoch;
-      if (audio.duration && isFinite(audio.duration)) {
-        const drift = Math.abs(audio.currentTime - target);
-        if (drift > 0.5) {
-          audio.currentTime = Math.min(Math.max(0, target), audio.duration);
-        }
-      }
-    }
-
-    // If armed and the minute has already passed while backgrounded, fire now
-    if (countdownArmed && syncEpoch !== null) {
-      const now = getUTC();
-      if (now >= syncEpoch) {
-        fireSync();
-      }
-    }
+  audio.addEventListener('timeupdate', () => {
+    if (!audio.duration) return;
+    document.getElementById('scrubFill').style.width =
+      (audio.currentTime / audio.duration * 100) + '%';
+    document.getElementById('currentTime').textContent = fmt(audio.currentTime);
   });
+
+  audio.addEventListener('ended', () => {
+    isPlaying = false;
+    clearInterval(syncTimer);
+    stopVU();
+    reelsStop();
+    document.getElementById('playIcon').style.display  = '';
+    document.getElementById('pauseIcon').style.display = 'none';
+    setStatus('track ended');
+  });
+
+  // Pre-fill epoch from shared link — do NOT auto-play
+  const params = new URLSearchParams(window.location.search);
+  const sharedEpoch = params.get('e') ? parseFloat(params.get('e')) : null;
+  if (sharedEpoch) {
+    syncEpoch = sharedEpoch;
+    document.getElementById('playBtn').classList.add('ready');
+    setStatus('synced · tap play when ready');
+  }
+
+  audio.src = url;
+  audio.load();
+  updateShareBox();
+}
+
+function togglePlay() {
+  if (!audio) { showToast('load a track first'); return; }
+
+  if (isPlaying) {
+    audio.pause();
+    isPlaying = false;
+    clearInterval(syncTimer);
+    stopVU();
+    reelsStop();
+    document.getElementById('playIcon').style.display  = '';
+    document.getElementById('pauseIcon').style.display = 'none';
+    setStatus('paused');
+    return;
+  }
+
+  // If joining from a shared link, seek to the correct position
+  if (syncEpoch !== null) {
+    const offset = getUTC() - syncEpoch;
+    if (offset > 0 && offset < (audio.duration || 99999)) {
+      audio.currentTime = offset;
+    }
+  }
+
+  audio.play().then(() => {
+    isPlaying = true;
+    reelsPlay();
+    document.getElementById('playIcon').style.display  = 'none';
+    document.getElementById('pauseIcon').style.display = '';
+    document.getElementById('playBtn').classList.remove('ready');
+    syncEpoch = getUTC() - audio.currentTime;
+    startSync();
+    vuTimer = setInterval(animateVU, 80);
+    setStatus('playing · in sync', true);
+    updateShareBox();
+  }).catch(() => {
+    setStatus('tap play again — browser requires a gesture');
+    showToast('tap play again');
+  });
+}
+
+function skip(sec) {
+  if (!audio) return;
+  audio.currentTime = Math.max(0, Math.min(audio.currentTime + sec, audio.duration || 0));
+  syncEpoch = getUTC() - audio.currentTime;
+  updateShareBox();
+}
+
+function startSync() {
+  clearInterval(syncTimer);
+  syncTimer = setInterval(() => {
+    if (!isPlaying || !syncEpoch || !audio || !audio.duration) return;
+    const drift = audio.currentTime - (getUTC() - syncEpoch);
+    if (Math.abs(drift) > 1.5) {
+      audio.currentTime = Math.min(Math.max(getUTC() - syncEpoch, 0), audio.duration);
+    }
+  }, 5000);
+}
+
+function updateShareBox() {
+  const url = document.getElementById('audioUrl').value.trim();
+  const inp = document.getElementById('shareInput');
+  if (!url || syncEpoch === null) { inp.value = ''; return; }
+  inp.value = window.location.href.split('?')[0] +
+    '?src=' + encodeURIComponent(url) + '&e=' + Math.round(syncEpoch);
+}
+
+function copyLink() {
+  const v = document.getElementById('shareInput').value;
+  if (!v) { showToast('hit play first to generate a sync link'); return; }
+  navigator.clipboard.writeText(v)
+    .then(() => showToast('link copied!'))
+    .catch(() => { document.getElementById('shareInput').select(); showToast('select and copy manually'); });
+}
+
+// Auto-load from URL params on page open — never auto-plays
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const src = params.get('src');
+  if (src) {
+    document.getElementById('audioUrl').value = decodeURIComponent(src);
+    loadTrack();
+  }
+})();
 </script>
 </body>
 </html>
