@@ -472,12 +472,9 @@ function loadTrack(url) {
 }
 
 function getSharedEpoch() {
-  // Use the most recent UTC hour boundary as the shared epoch.
-  // This means the track position = seconds since the last full hour.
-  // All phones share the same UTC clock so they all get the same position.
+  // Use the most recent 1-second UTC boundary as the shared epoch.
   const now = Date.now();
-  const msPerHour = 3600000;
-  return Math.floor(now / msPerHour) * msPerHour / 1000;
+  return Math.floor(now / 1000);
 }
 
 function togglePlay() {
