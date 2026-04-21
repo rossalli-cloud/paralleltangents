@@ -183,6 +183,7 @@
     .time-row {
       display: flex;
       justify-content: space-between;
+      width: 100%;
       font-size: 10px;
       color: var(--gold);
       padding-top: 8px;
@@ -225,21 +226,18 @@
       margin-bottom: 6px;
     }
     .share-row { display: flex; gap: 8px; }
-    .share-input {
+    .sync-msg {
       flex: 1;
       background: var(--bg-deep);
       border: 1px solid var(--border-dim);
       border-radius: 6px;
-      color: var(--text-dim);
+      color: var(--gold);
       font-family: 'IBM Plex Mono', monospace;
       font-size: 11px;
       padding: 10px 12px;
-      outline: none;
       text-align: center;
+      line-height: 1.6;
     }
-    .share-input::placeholder {
-      color: var(--gold);
-      font-size: 11px;
     }
     .copy-btn {
       background: var(--bg-mid);
@@ -328,8 +326,6 @@
     </div>
   </div>
 
-  <div class="progress-area"></div>
-
   <div class="controls">
     <button class="play-btn" id="playBtn" onclick="togglePlay()">
       <svg id="playIcon"  width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
@@ -339,7 +335,7 @@
 
   <div class="share-section">
     <div class="share-row">
-      <input class="share-input" id="shareInput" readonly placeholder="wait for all to sync before pressing play">
+      <div class="sync-msg">wait for all to sync<br>before pressing play</div>
     </div>
     <div class="status-row" id="statusRow"></div>
   </div>
