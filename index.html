@@ -31,7 +31,7 @@
 
     html, body {
       min-height: 100%;
-      background: #120d08;
+      background: linear-gradient(160deg, #1a1200 0%, #0a0a0a 50%, #0d0a1a 100%);
       display: flex;
       align-items: flex-start;
       justify-content: center;
@@ -41,20 +41,20 @@
     }
 
     .shell {
-      background: var(--bg);
+      background: linear-gradient(180deg, #3a2800 0%, #1a1000 60%, #0e0b07 100%);
       border-radius: 20px;
       padding: 28px 24px 24px;
       width: 100%;
       max-width: 420px;
       color: var(--text);
-      border: 1.5px solid var(--border);
+      border: 1.5px solid var(--gold);
       position: relative;
       overflow: hidden;
     }
     .shell::before {
       content: '';
       position: absolute; inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(240,200,74,0.06) 3px, rgba(240,200,74,0.06) 4px);
       pointer-events: none;
       border-radius: 20px;
     }
@@ -68,12 +68,13 @@
       color: var(--text);
       text-align: center;
       margin-bottom: 20px;
+      white-space: nowrap;
     }
 
     .tape-window {
       background: var(--bg-deep);
       border-radius: 14px;
-      border: 2px solid var(--border);
+      border: 2px solid var(--gold);
       padding: 18px 16px 14px;
       margin-bottom: 16px;
       position: relative;
@@ -97,7 +98,7 @@
     .reel {
       width: 80px; height: 80px;
       border-radius: 50%;
-      border: 2px solid #4a3820;
+      border: 2px solid var(--gold);
       background: radial-gradient(circle at 50% 50%, #2a1f0e 0%, #1a1208 60%, #0e0b07 100%);
       display: flex; align-items: center; justify-content: center;
       position: relative;
@@ -111,7 +112,7 @@
       width: 18px; height: 18px;
       border-radius: 50%;
       background: #3a2c18;
-      border: 1.5px solid #6a5030;
+      border: 1.5px solid var(--gold);
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
@@ -279,11 +280,11 @@
     <div class="reels-row">
       <div class="reel-wrap">
         <div class="reel" id="reelL">
-          <svg viewBox="0 0 82 82"><g stroke="#4a3820" stroke-width="1.5" fill="none">
-            <line x1="41" y1="10" x2="41" y2="72"/>
-            <line x1="10" y1="41" x2="72" y2="41"/>
-            <line x1="18" y1="18" x2="64" y2="64"/>
-            <line x1="64" y1="18" x2="18" y2="64"/>
+          <svg viewBox="0 0 82 82"><g stroke="var(--gold)" stroke-width="1.5" fill="none">
+            <circle cx="41" cy="41" r="32"/>
+            <circle cx="41" cy="41" r="24"/>
+            <circle cx="41" cy="41" r="16"/>
+            <circle cx="41" cy="41" r="8"/>
           </g></svg>
           <div class="reel-hub"></div>
         </div>
@@ -296,11 +297,11 @@
       </div>
       <div class="reel-wrap">
         <div class="reel" id="reelR">
-          <svg viewBox="0 0 82 82"><g stroke="#4a3820" stroke-width="1.5" fill="none">
-            <line x1="41" y1="10" x2="41" y2="72"/>
-            <line x1="10" y1="41" x2="72" y2="41"/>
-            <line x1="18" y1="18" x2="64" y2="64"/>
-            <line x1="64" y1="18" x2="18" y2="64"/>
+          <svg viewBox="0 0 82 82"><g stroke="var(--gold)" stroke-width="1.5" fill="none">
+            <circle cx="41" cy="41" r="32"/>
+            <circle cx="41" cy="41" r="24"/>
+            <circle cx="41" cy="41" r="16"/>
+            <circle cx="41" cy="41" r="8"/>
           </g></svg>
           <div class="reel-hub"></div>
         </div>
@@ -325,10 +326,9 @@
   </div>
 
   <div class="share-section">
-    <div class="share-label">share · sync link</div>
     <div class="share-row">
-      <input class="share-input" id="shareInput" readonly placeholder="play to generate sync link">
-      <button class="copy-btn" onclick="copyLink()">COPY</button>
+      <input class="share-input" id="shareInput" readonly placeholder="press play to sync">
+
     </div>
     <div class="status-row" id="statusRow"></div>
   </div>
