@@ -61,10 +61,11 @@
 
     .deck-title {
       font-family: 'Playfair Display', serif;
-      font-size: 12px;
-      letter-spacing: 0.24em;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--text-dim);
+      color: var(--text);
       text-align: center;
       margin-bottom: 20px;
     }
@@ -303,7 +304,7 @@
 </head>
 <body>
 <div class="shell">
-  <div class="deck-title">Tape Deck &middot; UTC Sync</div>
+  <div class="deck-title">Parallel Tangents &middot; UTC Sync</div>
 
   <div class="url-row">
     <input class="url-input" id="audioUrl" placeholder="paste audio url…" autocomplete="off" autocorrect="off" spellcheck="false">
@@ -325,7 +326,7 @@
       </div>
       <div style="text-align:center;flex:1;padding:0 10px;">
         <div class="track-label">
-          <div class="label-title" id="trackTitle">No track loaded</div>
+          <div class="label-title" id="trackTitle"></div>
           <div class="label-sub" id="trackSub">A &middot; SIDE</div>
         </div>
       </div>
