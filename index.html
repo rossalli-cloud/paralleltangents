@@ -19,9 +19,9 @@
       --bg-mid:    #140f08;
       --border:    #3a2e1e;
       --border-dim:#2a1e0e;
-      --gold:      #c8a84b;
-      --gold-lt:   #e8c86a;
-      --gold-dk:   #8a6e28;
+      --gold:      #f0c84a;
+      --gold-lt:   #ffe066;
+      --gold-dk:   #c8960a;
       --text:      #d4c4a0;
       --text-dim:  #8a7355;
       --text-muted:#4a3820;
@@ -217,6 +217,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 100%;
+      text-align: center;
       margin-bottom: 20px;
     }
     .ctrl-btn { display: none; }
@@ -230,6 +232,7 @@
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       transition: background 0.2s, transform 0.1s;
+      margin: 0 auto;
     }
     .play-btn:hover  { background: var(--gold); }
     .play-btn:active { transform: scale(0.95); }
