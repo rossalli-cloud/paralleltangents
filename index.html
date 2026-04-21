@@ -70,40 +70,6 @@
       margin-bottom: 20px;
     }
 
-    .url-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 18px;
-    }
-    .url-input {
-      flex: 1;
-      background: var(--bg-deep);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      padding: 9px 12px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .url-input:focus { border-color: var(--gold-dk); }
-    .url-input::placeholder { color: var(--text-muted); }
-    .load-btn {
-      background: var(--gold-dk);
-      border: none;
-      border-radius: 8px;
-      color: #1a1000;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      padding: 9px 14px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .load-btn:hover { background: var(--gold); }
-
     .tape-window {
       background: var(--bg-deep);
       border-radius: 14px;
@@ -309,11 +275,6 @@
 <div class="shell">
   <div class="deck-title">Parallel Tangents &middot; UTC Sync</div>
 
-  <div class="url-row">
-    <input class="url-input" id="audioUrl" placeholder="paste audio url…" autocomplete="off" autocorrect="off" spellcheck="false">
-    <button class="load-btn" onclick="loadTrack()">LOAD</button>
-  </div>
-
   <div class="tape-window">
     <div class="reels-row">
       <div class="reel-wrap">
@@ -440,9 +401,8 @@ function reelsStop() {
   document.getElementById('tapeSheen').classList.remove('playing');
 }
 
-function loadTrack() {
-  const url = document.getElementById('audioUrl').value.trim();
-  if (!url) { showToast('paste an audio URL first'); return; }
+function loadTrack(url) {
+  if (!url) return;
 
   if (audio) {
     audio.pause();
@@ -549,11 +509,9 @@ function startSync() {
 }
 
 function updateShareBox() {
-  const url = document.getElementById('audioUrl').value.trim();
   const inp = document.getElementById('shareInput');
-  if (!url || syncEpoch === null) { inp.value = ''; return; }
-  inp.value = window.location.href.split('?')[0] +
-    '?src=' + encodeURIComponent(url) + '&e=' + Math.round(syncEpoch);
+  if (syncEpoch === null) { inp.value = ''; return; }
+  inp.value = window.location.href.split('?')[0] + '?e=' + Math.round(syncEpoch);
 }
 
 function copyLink() {
@@ -564,14 +522,11 @@ function copyLink() {
     .catch(() => { document.getElementById('shareInput').select(); showToast('select and copy manually'); });
 }
 
-// Auto-load from URL params on page open — never auto-plays
+// Auto-load hardcoded track on page open — never auto-plays
+const TRACK_URL = 'https://rossalli-cloud.github.io/paralleltangents/paralleltangents%20mixdown1.mp3';
+
 (function() {
-  const params = new URLSearchParams(window.location.search);
-  const src = params.get('src');
-  if (src) {
-    document.getElementById('audioUrl').value = decodeURIComponent(src);
-    loadTrack();
-  }
+  loadTrack(TRACK_URL);
 })();
 </script>
 </body>
