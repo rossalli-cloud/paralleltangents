@@ -205,21 +205,7 @@
       height: 4px;
     }
 
-    .progress-area { margin-bottom: 16px; }
-    .scrub-wrap {
-      height: 5px;
-      background: var(--border-dim);
-      border-radius: 3px;
-      cursor: pointer;
-      margin-bottom: 6px;
-    }
-    .scrub-fill {
-      height: 100%;
-      background: var(--gold-dk);
-      border-radius: 3px;
-      width: 0%;
-    }
-    .time-row {
+
       display: flex;
       justify-content: space-between;
       font-size: 10px;
@@ -230,21 +216,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
       margin-bottom: 20px;
     }
-    .ctrl-btn {
-      background: var(--bg-mid);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text-dim);
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      padding: 8px 12px;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-    }
-    .ctrl-btn:hover { background: var(--border); color: var(--text); }
+    .ctrl-btn { display: none; }
 
     .play-btn {
       width: 64px; height: 64px;
@@ -372,9 +346,6 @@
   </div>
 
   <div class="progress-area">
-    <div class="scrub-wrap" id="scrubWrap">
-      <div class="scrub-fill" id="scrubFill"></div>
-    </div>
     <div class="time-row">
       <span id="currentTime">0:00</span>
       <span id="duration">—</span>
@@ -382,12 +353,10 @@
   </div>
 
   <div class="controls">
-    <button class="ctrl-btn" onclick="skip(-15)">&#9664;&#9664; 15s</button>
     <button class="play-btn" id="playBtn" onclick="togglePlay()">
       <svg id="playIcon"  width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
       <svg id="pauseIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
     </button>
-    <button class="ctrl-btn" onclick="skip(15)">15s &#9654;&#9654;</button>
   </div>
 
   <div class="share-section">
@@ -467,13 +436,6 @@ function reelsStop() {
   document.getElementById('tapeSheen').classList.remove('playing');
 }
 
-document.getElementById('scrubWrap').addEventListener('click', function(e) {
-  if (!audio || !audio.duration) return;
-  audio.currentTime = ((e.clientX - this.getBoundingClientRect().left) / this.offsetWidth) * audio.duration;
-  syncEpoch = getUTC() - audio.currentTime;
-  updateShareBox();
-});
-
 function loadTrack() {
   const url = document.getElementById('audioUrl').value.trim();
   if (!url) { showToast('paste an audio URL first'); return; }
@@ -504,9 +466,6 @@ function loadTrack() {
   });
 
   audio.addEventListener('timeupdate', () => {
-    if (!audio.duration) return;
-    document.getElementById('scrubFill').style.width =
-      (audio.currentTime / audio.duration * 100) + '%';
     document.getElementById('currentTime').textContent = fmt(audio.currentTime);
   });
 
@@ -572,13 +531,6 @@ function togglePlay() {
     setStatus('tap play again — browser requires a gesture');
     showToast('tap play again');
   });
-}
-
-function skip(sec) {
-  if (!audio) return;
-  audio.currentTime = Math.max(0, Math.min(audio.currentTime + sec, audio.duration || 0));
-  syncEpoch = getUTC() - audio.currentTime;
-  updateShareBox();
 }
 
 function startSync() {
