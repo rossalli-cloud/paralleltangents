@@ -183,10 +183,14 @@
     .time-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       width: 100%;
+      box-sizing: border-box;
       font-size: 10px;
       color: var(--gold);
       padding-top: 8px;
+      padding-left: 4px;
+      padding-right: 4px;
     }
 
     .controls {
@@ -464,6 +468,15 @@ function loadTrack(url) {
   updateShareBox();
 }
 
+function getSharedEpoch() {
+  // Use the most recent UTC hour boundary as the shared epoch.
+  // This means the track position = seconds since the last full hour.
+  // All phones share the same UTC clock so they all get the same position.
+  const now = Date.now();
+  const msPerHour = 3600000;
+  return Math.floor(now / msPerHour) * msPerHour / 1000;
+}
+
 function togglePlay() {
   if (!audio) { showToast('load a track first'); return; }
 
@@ -479,12 +492,11 @@ function togglePlay() {
     return;
   }
 
-  // If joining from a shared link, seek to the correct position
-  if (syncEpoch !== null) {
-    const offset = getUTC() - syncEpoch;
-    if (offset > 0 && offset < (audio.duration || 99999)) {
-      audio.currentTime = offset;
-    }
+  // All phones use the same shared UTC epoch — no link sharing needed
+  syncEpoch = getSharedEpoch();
+  const offset = getUTC() - syncEpoch;
+  if (offset >= 0 && offset < (audio.duration || 99999)) {
+    audio.currentTime = offset % (audio.duration || 99999);
   }
 
   audio.play().then(() => {
@@ -493,11 +505,9 @@ function togglePlay() {
     document.getElementById('playIcon').style.display  = 'none';
     document.getElementById('pauseIcon').style.display = '';
     document.getElementById('playBtn').classList.remove('ready');
-    syncEpoch = getUTC() - audio.currentTime;
     startSync();
     vuTimer = setInterval(animateVU, 80);
     setStatus('playing · in sync', true);
-    updateShareBox();
   }).catch(() => {
     setStatus('tap play again — browser requires a gesture');
     showToast('tap play again');
@@ -508,11 +518,12 @@ function startSync() {
   clearInterval(syncTimer);
   syncTimer = setInterval(() => {
     if (!isPlaying || !syncEpoch || !audio || !audio.duration) return;
-    const drift = audio.currentTime - (getUTC() - syncEpoch);
-    if (Math.abs(drift) > 1.5) {
-      audio.currentTime = Math.min(Math.max(getUTC() - syncEpoch, 0), audio.duration);
+    const expected = (getUTC() - syncEpoch) % audio.duration;
+    const drift = audio.currentTime - expected;
+    if (Math.abs(drift) > 0.5) {
+      audio.currentTime = expected;
     }
-  }, 5000);
+  }, 2000);
 }
 
 function updateShareBox() {
